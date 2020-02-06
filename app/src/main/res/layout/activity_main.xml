@@ -9,7 +9,7 @@
     tools:context="fi.foodroyale.raccis.MainActivity"
     android:background="@color/cardview_dark_background">
 
-<android.support.v7.widget.Toolbar
+<androidx.appcompat.widget.Toolbar
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
@@ -76,7 +76,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:visibility="gone"
                 android:nestedScrollingEnabled="false"
                 android:id="@+id/rv_sodexo"
@@ -127,7 +127,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:visibility="gone"
                 android:nestedScrollingEnabled="false"
                 android:id="@+id/rv_eventti"

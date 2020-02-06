@@ -1,28 +1,24 @@
 package fi.foodroyale.raccis;
 
-import android.graphics.pdf.PdfDocument;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.IOError;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-    import java.util.Locale;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -75,6 +71,10 @@ public class MainActivity extends AppCompatActivity {
         rvSodexo.setLayoutManager(new LinearLayoutManager(this));
         rvEventti.setLayoutManager(new LinearLayoutManager(this));
     }
+
+    // TODO
+    //JSONObject songsObject = json.getJSONObject("songs");
+    //JSONArray songsArray = songsObject.toJSONArray(songsObject.names());
 
     void setTitle(){
 
