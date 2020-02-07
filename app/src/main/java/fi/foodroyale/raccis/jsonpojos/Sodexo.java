@@ -1,26 +1,17 @@
-
-package fi.foodroyale.raccis.gsonclasses;
+package fi.foodroyale.raccis.jsonpojos;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class SodexoGson {
+public class Sodexo {
 
-    @SerializedName("meta")
-    @Expose
-    private Meta meta;
     @SerializedName("courses")
     @Expose
     private List<Course> courses = null;
-
-    public Meta getMeta() {
-        return meta;
-    }
-
-    public void setMeta(Meta meta) {
-        this.meta = meta;
-    }
+    @SerializedName("meta")
+    @Expose
+    private Meta meta;
 
     public List<Course> getCourses() {
         return courses;
@@ -28,6 +19,14 @@ public class SodexoGson {
 
     public void setCourses(List<Course> courses) {
         this.courses = courses;
+    }
+
+    public Meta getMeta() {
+        return meta;
+    }
+
+    public void setMeta(Meta meta) {
+        this.meta = meta;
     }
 
 }

@@ -5,7 +5,7 @@ android {
     buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "fi.foodroyale.raccis"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 28
         versionCode 4
         versionName "2.0"

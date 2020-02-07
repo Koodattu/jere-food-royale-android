@@ -9,6 +9,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="FoodRoyale"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name=".MainActivity"
             android:theme="@style/AppTheme">

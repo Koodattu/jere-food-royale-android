@@ -12,6 +12,14 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,8 +33,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.IFlexible;
-import fi.foodroyale.raccis.gsonclasses.Course;
-import fi.foodroyale.raccis.gsonclasses.SodexoGson;
+import fi.foodroyale.raccis.jsonpojos.Course;
+import fi.foodroyale.raccis.jsonpojos.Sodexo;
 import fi.foodroyale.raccis.objects.Dish;
 import fi.foodroyale.raccis.retrofit.EventtiRF;
 import fi.foodroyale.raccis.retrofit.SodexoRF;
@@ -58,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     boolean canFetchSodexo = true;
     boolean canFetchEventti = true;
 
+    private static String sodexoID = "108";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,15 +76,11 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
 
-        setTitle("Jere Känsälä's SeAMK Food Royale");
+        setTitle("Jere's SeAMK Food Royale");
 
         rvSodexo.setLayoutManager(new LinearLayoutManager(this));
         rvEventti.setLayoutManager(new LinearLayoutManager(this));
     }
-
-    // TODO
-    //JSONObject songsObject = json.getJSONObject("songs");
-    //JSONArray songsArray = songsObject.toJSONArray(songsObject.names());
 
     void setTitle(){
 
@@ -117,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     public void onStart(){
         super.onStart();
         setTitle();
-        fetchSodexo("873", 0);
+        fetchSodexo(sodexoID, 0);
         fetchEventti();
     }
 
@@ -136,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                 fetchEventti();
             }
             if (canFetchSodexo) {
-                fetchSodexo("873", 0);
+                fetchSodexo(sodexoID, 0);
             }
             return true;
         }
@@ -252,14 +258,18 @@ public class MainActivity extends AppCompatActivity {
         calendar.add(Calendar.DAY_OF_YEAR, day);
 
         OkHttpClient httpClient = new OkHttpClient.Builder().connectTimeout(5, TimeUnit.SECONDS).readTimeout(5, TimeUnit.SECONDS).build();
-        Retrofit.Builder builder = new Retrofit.Builder().baseUrl("https://www.sodexo.fi").addConverterFactory(GsonConverterFactory.create());
+        Retrofit.Builder builder = new Retrofit.Builder().baseUrl("https://www.sodexo.fi");
         Retrofit retrofit = builder.client(httpClient).build();
 
         SodexoRF sodexoRF =  retrofit.create(SodexoRF.class);
-        Call<SodexoGson> sodexoGsonCall = sodexoRF.getCoursesSodexo(restaurantCode, Integer.toString(calendar.get(Calendar.YEAR)), (calendar.get(Calendar.MONTH) + 1) < 10 ? ("0" + Integer.toString(calendar.get(Calendar.MONTH) + 1)) : Integer.toString((calendar.get(Calendar.MONTH) + 1)), calendar.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)) : Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)));
-        sodexoGsonCall.enqueue(new Callback<SodexoGson>() {
+        Call<ResponseBody> sodexoCall = sodexoRF.getCoursesSodexo(restaurantCode,
+                Integer.toString(calendar.get(Calendar.YEAR)),
+                (calendar.get(Calendar.MONTH) + 1) < 10 ? ("0" + Integer.toString(calendar.get(Calendar.MONTH) + 1)) : Integer.toString((calendar.get(Calendar.MONTH) + 1)),
+                calendar.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)) : Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)));
+
+        sodexoCall.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(@NonNull Call<SodexoGson> call, @NonNull Response<SodexoGson> response) {
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 boolean goodDay = false;
                 Calendar calendar = Calendar.getInstance();
 
@@ -284,12 +294,27 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (goodDay) {
-                    SodexoGson sodexoGson = response.body();
-                    for (Course course : sodexoGson.getCourses()) {
-                        sodexoCourses.add(new Dish(course.getTitleFi(), course.getPrice().substring(0, 4) + "€", course.getProperties()));
+                    try {
+                        String responseString = response.body().string();
+
+                        JSONObject json = new JSONObject(responseString);
+                        if (json.get("courses") instanceof JSONObject){
+                            JSONObject coursesObject = json.getJSONObject("courses");
+                            JSONArray coursesArray = coursesObject.toJSONArray(coursesObject.names());
+                            json.remove("courses");
+                            json.put("courses", coursesArray);
+                        }
+
+                        Gson gson = new GsonBuilder().create();
+                        Sodexo sodexo = gson.fromJson(json.toString(), Sodexo.class);
+                        for (Course course : sodexo.getCourses()) {
+                            sodexoCourses.add(new Dish(course.getTitleFi(), course.getPrice().substring(0, 4) + "€", course.getProperties()));
+                        }
+                        sodexoAdapter = new FlexibleAdapter<>(sodexoCourses);
+                        rvSodexo.setAdapter(sodexoAdapter);
+                    } catch (IOException | JSONException e) {
+                        e.printStackTrace();
                     }
-                    sodexoAdapter = new FlexibleAdapter<>(sodexoCourses);
-                    rvSodexo.setAdapter(sodexoAdapter);
                     updateSodexo(-1);
                 } else {
                     updateSodexo(1);
@@ -297,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
                 canFetchSodexo = true;
             }
             @Override
-            public void onFailure(@NonNull Call<SodexoGson> call, @NonNull Throwable throwable) {
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable throwable) {
                 throwable.printStackTrace();
                 if (throwable.toString().contains("SocketTimeoutException")){
                     updateSodexo(2);
@@ -385,7 +410,7 @@ public class MainActivity extends AppCompatActivity {
                             String saturday = format.format(calendar.getTime());
 
                             String body = response.body().string();
-                            body = body.substring(body.indexOf("<h2>Ravintola Eventti (B-halli)</h2>"));
+                            body = body.substring(body.indexOf("Ravintola Eventti (B-halli"));
                             body = body.substring(0, body.indexOf("<h4>La " + saturday + "</h4>") + ("<h4>La " + saturday + "</h4>").length());
                             body = body.substring(body.indexOf("<h4>" + dayToday + " " + today + "</h4>"));
                             body = body.substring(0, body.indexOf("<h4>" + dayTomorrow + " " + tomorrow + "</h4>"));
