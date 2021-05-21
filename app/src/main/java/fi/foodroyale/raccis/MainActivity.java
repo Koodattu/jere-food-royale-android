@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         sodexoAdapter = new FlexibleAdapter<>(sodexoCourses);
                         rvSodexo.setAdapter(sodexoAdapter);
-                    } catch (IOException | JSONException e) {
+                    } catch (IOException | JSONException | NullPointerException e) {
                         e.printStackTrace();
                     }
                     updateSodexo(-1);
