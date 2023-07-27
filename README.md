@@ -1,4 +1,4 @@
-# jere-food-royale-android
+# Jere Känsälä's SeAMK Food Royale
  Pit two restaurants against each other in this duel of the fates!
 
 Lyö SeAMKin Frami F Sodexon ravintolan ja Seinäjoki Areenan Eventti ravintolan ruokalistat toisiaan vastaan ennennäkemättömällä nopeudella ja päätä kummassa lounastetaan tänään!
